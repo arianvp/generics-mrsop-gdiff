@@ -109,7 +109,8 @@ skipFront
 skipFront (x@(sopNA -> TagNA cx px) :* xs) (y@(sopNA -> TagNA cy py) :* ys) =
   case heqCof cx cy of
     Just (Refl, Refl) ->
-      Cpy 0 cx $ skipFront (appendNP px xs) (appendNP py ys)
+      let c = skipFront (appendNP px xs) (appendNP py ys)
+       in Cpy (cost c) cx $ c
     Nothing -> getDiff $ diffT Nothing (x :* xs) (y :* ys)
 skipFront xs ys = getDiff $ diffT Nothing xs ys
 
