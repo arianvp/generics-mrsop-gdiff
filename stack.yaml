@@ -1,0 +1,9 @@
+
+resolver: lts-13.26
+
+packages:
+- .
+
+extra-deps:
+  - generics-mrsop-2.0.0
+
