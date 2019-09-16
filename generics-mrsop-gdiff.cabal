@@ -9,6 +9,7 @@ name:                generics-mrsop-gdiff
 version:             0.0.0
 license:             BSD3
 license-file:        LICENSE
+synopsis:            Reimplementation of the `gdiff` algorithm for `generics-mrsop`
 author:              Arian van Putten and Victor Miraldo
 maintainer:          arian.vanputten@gmail.com v.cacciarimiraldo@gmail.com
 category:            Generics
@@ -17,7 +18,7 @@ cabal-version:       >=1.10
 
 library
   ghc-options:
-    -O2
+    -O2 -Wall
 
   exposed-modules: 
     Generics.MRSOP.GDiff

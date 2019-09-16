@@ -23,7 +23,7 @@ data RList :: [k] -> * where
 -- this seems more like "Coerce" to me
 {-# INLINE reify #-}
 reify :: ListPrf ts -> RList ts
-reify Nil = RList
+reify Nil      = RList
 reify (Cons x) = case reify x of RList -> RList
 
 -- |Proves that the index of a value of type 'NP' is a list.
@@ -32,3 +32,25 @@ reify (Cons x) = case reify x of RList -> RList
 listPrfNP :: NP p xs -> ListPrf xs
 listPrfNP NP0       = Nil
 listPrfNP (_ :* xs) = Cons $ listPrfNP xs
+
+-- In Agda this would be:
+-- ++⁻ : {A : Set}
+--       {P : A -> Set}
+--       (xs : List A)
+--       {ys : List A} 
+--     → All P (xs ++ ys) → All P xs × All P ys
+-- ++⁻ []       p          = [] , p
+-- ++⁻ (x ∷ xs) (px ∷ pxs) = Prod.map (px ∷_) id (++⁻ _ pxs)
+--
+--   Note in particular, that xs is not an implicit argument,
+--   and that we explicitly pattern match on it.
+--
+--   In haskell, types and values are separated, but we can 
+--   carry around the Singleton LstPrf in order to
+--   discover on the type-level the list, by pattern matching
+split :: ListPrf xs -> NP p (xs :++: ys) -> (NP p xs, NP p ys)
+split Nil poa = (NP0, poa)
+split (Cons p) (x :* rs) =
+  let (xs, rest) = split p rs
+   in (x :* xs, rest)
+
