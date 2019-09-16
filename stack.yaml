@@ -1,9 +1,10 @@
 
-resolver: lts-13.26
+resolver: lts-14.1
 
 packages:
 - .
 
 extra-deps:
-  - generics-mrsop-2.0.0
+  - git: git@github.com:VictorCMiraldo/generics-mrsop.git
+    commit: 0931f69fca7ddf5a4cd9650b80dc8e44b9c67690 
 

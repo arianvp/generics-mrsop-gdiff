@@ -26,7 +26,7 @@ library
  
   -- Other library packages from which modules are imported.
   build-depends:       base,
-                       generics-mrsop >= 2.0.0
+                       generics-mrsop >= 2.2.0
   
   -- Directories containing source files.
   hs-source-dirs:      src

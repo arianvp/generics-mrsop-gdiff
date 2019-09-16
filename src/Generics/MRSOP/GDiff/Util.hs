@@ -23,15 +23,15 @@ data RList :: [k] -> * where
 -- this seems more like "Coerce" to me
 {-# INLINE reify #-}
 reify :: ListPrf ts -> RList ts
-reify Nil      = RList
-reify (Cons x) = case reify x of RList -> RList
+reify LP_Nil      = RList
+reify (LP_Cons x) = case reify x of RList -> RList
 
 -- |Proves that the index of a value of type 'NP' is a list.
 --  This is useful for pattern matching on said list without
 --  having to carry the product around.
 listPrfNP :: NP p xs -> ListPrf xs
-listPrfNP NP0       = Nil
-listPrfNP (_ :* xs) = Cons $ listPrfNP xs
+listPrfNP Nil       = LP_Nil
+listPrfNP (_ :* xs) = LP_Cons $ listPrfNP xs
 
 -- In Agda this would be:
 -- ++⁻ : {A : Set}
@@ -49,8 +49,8 @@ listPrfNP (_ :* xs) = Cons $ listPrfNP xs
 --   carry around the Singleton LstPrf in order to
 --   discover on the type-level the list, by pattern matching
 split :: ListPrf xs -> NP p (xs :++: ys) -> (NP p xs, NP p ys)
-split Nil poa = (NP0, poa)
-split (Cons p) (x :* rs) =
+split LP_Nil poa = (Nil, poa)
+split (LP_Cons p) (x :* rs) =
   let (xs, rest) = split p rs
    in (x :* xs, rest)
 
