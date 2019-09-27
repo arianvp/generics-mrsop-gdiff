@@ -42,10 +42,10 @@ import Generics.MRSOP.Util ( SNat
 -- | A 'Cof' represents a leaf of the flattened representation of our tree. Hence,
 -- it will be either a constructor of a particular datatype or an opaque value.
 data Cof (ki :: kon -> *) (codes :: [[[Atom kon]]]) :: Atom kon -> [Atom kon] -> * where
-  -- ^ A constructor tells us the type of its arguments and which type in the family it constructs
+  -- | A constructor tells us the type of its arguments and which type in the family it constructs
   ConstrI :: (IsNat c, IsNat n) => Constr (Lkup n codes) c -> ListPrf (Lkup c (Lkup n codes)) -> Cof ki codes ('I n) (Lkup c (Lkup n codes))
 
-  -- ^ Requires no arguments to complete
+  -- | Requires no arguments to complete
   ConstrK :: ki k -> Cof ki codes ('K k) '[]
 
 -- |Extracts a proxy from a 'Cof'
@@ -86,6 +86,7 @@ data ES (ki :: kon -> *) (codes :: [[[Atom kon]]]) :: [Atom kon] -> [Atom kon] -
   Cpy :: Int -> Cof ki codes a t -> ES ki codes (t :++: i) (t :++: j) -> ES ki codes (a ': i) (a ': j)
 
 {-# INLINE cost #-}
+-- |Extracts the cost of an edit script
 cost :: ES ki codes txs tys -> Int
 cost ES0 = 0
 cost (Ins k _ _) = k
@@ -272,6 +273,13 @@ delCof :: EqHO ki
        -> Maybe (PoA ki (Fix ki codes) (t :++: xs))
 delCof c (x :* xs) = flip appendNP xs <$> matchCof c x
 
+-- * Application Function Variations
+
+-- $applydocs
+--
+-- Different interfaces to the application function are made
+-- available. This enables one to always have an /apply/ function
+-- handy on any stage of a generic pipeline.
 
 apply :: forall ki fam codes ty1 ty2 ix1 ix2.
          ( Family ki fam codes
@@ -284,7 +292,7 @@ apply :: forall ki fam codes ty1 ty2 ix1 ix2.
          ,  EqHO ki
          , TestEquality ki
          )
-      => ES ki codes '[ 'I ix1] '[ 'I ix2]
+      => ES ki codes '[ 'I ix1] '[ 'I ix2] -- ^ 
       -> ty1
       -> Maybe ty2
 apply es a =
@@ -296,7 +304,7 @@ apply es a =
 
 apply' ::
      (IsNat ix1, IsNat ix2,  EqHO ki)
-  => ES ki codes '[ 'I ix1] '[ 'I ix2]
+  => ES ki codes '[ 'I ix1] '[ 'I ix2] -- ^ 
   -> Fix ki codes ix1
   -> Maybe (Fix ki codes ix2)
 apply' es x = do
@@ -306,7 +314,7 @@ apply' es x = do
 
 applyES ::
      EqHO ki
-  => ES ki codes xs ys
+  => ES ki codes xs ys -- ^ 
   -> PoA ki (Fix ki codes) xs
   -> Maybe (PoA ki (Fix ki codes) ys)
 applyES ES0 _ = Just Nil
@@ -330,6 +338,13 @@ instance (HasDatatypeInfo ki fam codes, ShowHO ki) =>
   show (Del _ c d) = "Del " ++ showCof c ++ " $ " ++ show d
   show (Cpy _ c d) = "Cpy " ++ showCof c ++ " $ " ++ show d
 
+-- * Diff Function Variations
+
+-- $diffdocs
+--
+-- Different interfaces to the /diff/ function.
+
+
 diff :: forall fam ki codes ix1 ix2 ty1 ty2.
         ( Family ki fam codes
         , ix1 ~ Idx ty1 fam
@@ -341,13 +356,13 @@ diff :: forall fam ki codes ix1 ix2 ty1 ty2.
         ,  EqHO ki
         , TestEquality ki
         )
-     => ty1
+     => ty1 -- ^ 
      -> ty2
      -> ES ki codes '[ 'I ix1] '[ 'I ix2]
 diff a b = diff' (deep a) (deep b)
 
 diff' :: ( EqHO ki, IsNat ix1, IsNat ix2, TestEquality ki)
-      => Fix ki codes ix1
+      => Fix ki codes ix1 -- ^ 
       -> Fix ki codes ix2
       -> ES ki codes '[ 'I ix1] '[ 'I ix2]
 diff' a b = skipFront (NA_I a :* Nil) (NA_I b :* Nil) 
