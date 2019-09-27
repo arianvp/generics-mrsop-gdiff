@@ -10,6 +10,7 @@ version:             0.0.1
 license:             BSD3
 license-file:        LICENSE
 synopsis:            Reimplementation of the `gdiff` algorithm for `generics-mrsop`
+description:         Here we port the gdiff algorithm and library to work over the generics-mrsop, enabling code that relies on the later library to access the gdiff algorithm. 
 author:              Arian van Putten and Victor Miraldo
 maintainer:          arian.vanputten@gmail.com v.cacciarimiraldo@gmail.com
 category:            Generics
@@ -25,7 +26,7 @@ library
     Generics.MRSOP.GDiff.Util
  
   -- Other library packages from which modules are imported.
-  build-depends:       base,
+  build-depends:       base < 5,
                        generics-mrsop >= 2.2.0
   
   -- Directories containing source files.
