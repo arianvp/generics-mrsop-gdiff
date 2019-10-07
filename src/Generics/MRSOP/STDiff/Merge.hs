@@ -95,8 +95,9 @@ mergeCtxAt (H (AlmuMin almu') _) (AtFix almu :* xs) = do
   Refl <- testEquality (almuSrc x) (getSNat (Proxy @ix))
   guard (and $ elimNP identityAt xs)
   pure x
-mergeCtxAt (T _ ctx) (x :* xs) = mergeCtxAt ctx xs
--- TODO: FIX!!! x must be identity
+mergeCtxAt (T _ ctx) (x :* xs) = do
+  guard (identityAt x)
+  mergeCtxAt ctx xs
 
 mergeAtCtx :: (EqHO ki, IsNat iy)
            => NP (At ki codes) xs
@@ -108,7 +109,7 @@ mergeAtCtx (AtFix almu :* xs) (H (AlmuMin almu') rest) = do
   guard (and $ elimNP identityAt xs)
   pure $ H  (AlmuMin almu'') rest
 mergeAtCtx (x :* xs) (T a  ctx) = do
--- TODO: FIX!!! x must be identity
+   guard (identityAt x)
    T a  <$> mergeAtCtx xs ctx
 mergeAtCtx Nil _ = error "unreachable" -- check x's type to be sure!
 
