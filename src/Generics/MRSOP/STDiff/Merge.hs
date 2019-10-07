@@ -3,7 +3,8 @@
 {-# LANGUAGE TypeApplications      #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE GADTs                 #-}
-module Generics.MRSOP.STDiff.Merge (mergeAlmu) where
+{-# LANGUAGE PolyKinds             #-}
+module Generics.MRSOP.STDiff.Merge (merge) where
 
 import Data.Proxy
 import Data.Type.Equality
@@ -140,12 +141,6 @@ mergeAlmuCtx almu (H almu' rest) = do
   pure (H almu'' rest)
 mergeAlmuCtx almu (T a ctx) = T a <$> mergeAlmuCtx almu ctx
 
--- |Merges two patches in the /stdiff/ style. Satisfies the following
--- postcondition:
---
--- > if mergeAlmu p q == Just pq && mergeAlmu q p == Just qp
--- > then applyAlmu pq . q == applyAlmu qp . p
---
 mergeAlmu :: forall ki codes ix iy
            . (EqHO ki, IsNat ix, IsNat iy)
           => Almu ki codes ix iy
@@ -178,3 +173,16 @@ mergeAlmu (Del c1 s1) (Spn (SCns c2 at2)) = do
   mergeCtxAt s1 at2
 mergeAlmu (Del _ _) (Spn (SChg _ _ _)) = Nothing
 mergeAlmu (Del _ _) (Del _ _) = Nothing
+
+-- |Merges two patches in the /stdiff/ style. Satisfies the following
+-- postcondition:
+--
+-- > if merge p q == Just pq && merge q p == Just qp
+-- > then apply pq . q == apply qp . p
+--
+merge :: forall ki codes ix
+       . (EqHO ki, IsNat ix)
+      => Almu ki codes ix ix
+      -> Almu ki codes ix ix
+      -> Maybe (Almu ki codes ix ix)
+merge = mergeAlmu

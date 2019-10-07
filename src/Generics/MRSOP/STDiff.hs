@@ -8,7 +8,7 @@
 {-# LANGUAGE GADTs                 #-}
 module Generics.MRSOP.STDiff
   ( module Generics.MRSOP.STDiff.Types
-  , apply
+  , apply , merge , diff
   ) where
 
 import Data.Proxy
@@ -17,6 +17,9 @@ import Control.Monad
 import Generics.MRSOP.Base
 
 import Generics.MRSOP.STDiff.Types
+import Generics.MRSOP.STDiff.Merge
+import Generics.MRSOP.STDiff.Compute
+
 
 applyAt :: EqHO ki
         => (At ki codes :*: NA ki (Fix ki codes)) a
