@@ -17,7 +17,7 @@
 --
 module Generics.MRSOP.GDiff
   ( Cof(..)
-  , cofIdx , cofWitnessI , cofHeq
+  , cofIdx , cofWitnessI , cofHeq , matchCof
   , ES(..)
   , apply, apply' , applyES
   , diff , diff'
