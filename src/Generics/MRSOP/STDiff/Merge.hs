@@ -3,7 +3,7 @@
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE GADTs #-}
-module Generics.MRSOP.STDiff.Merge where
+module Generics.MRSOP.STDiff.Merge (mergeAlmu) where
 
 import Data.Proxy
 import Data.Type.Equality
@@ -140,7 +140,14 @@ mergeAlmuCtx almu (H almu' rest) = do
   pure (H almu'' rest)
 mergeAlmuCtx almu (T a ctx) = T a <$> mergeAlmuCtx almu ctx
 
-mergeAlmu :: forall ki codes ix iy. (EqHO ki, IsNat ix, IsNat iy)
+-- |Merges two patches in the /stdiff/ style. Satisfies the following
+-- postcondition:
+--
+-- > if mergeAlmu p q == Just pq && mergeAlmu q p == Just qp
+-- > then applyAlmu pq . q == applyAlmu qp . p
+--
+mergeAlmu :: forall ki codes ix iy
+           . (EqHO ki, IsNat ix, IsNat iy)
           => Almu ki codes ix iy
           -> Almu ki codes ix iy
           -> Maybe (Almu ki codes ix iy)
