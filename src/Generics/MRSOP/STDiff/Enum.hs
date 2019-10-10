@@ -1,9 +1,11 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators         #-}
 {-# LANGUAGE DataKinds             #-}
 {-# LANGUAGE QuantifiedConstraints #-}
 {-# LANGUAGE PolyKinds             #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE GADTs                 #-}
+{-# LANGUAGE ViewPatterns          #-}
 module Generics.MRSOP.STDiff.Enum where
 
 import Control.Monad
@@ -11,6 +13,7 @@ import Control.Applicative
 import Data.Proxy
 import Data.Type.Equality
 
+import Data.SOP.Constraint
 import Generics.MRSOP.Base
 import Generics.MRSOP.STDiff.Types
 
@@ -18,15 +21,40 @@ import Generics.MRSOP.STDiff.Types
 getFixSNat :: IsNat ix => Fix ki codes ix -> SNat ix
 getFixSNat _ = getSNat (Proxy :: Proxy ix)
 
-enumAt :: MonadPlus m
+enumAt :: (MonadPlus m , TestEquality ki , EqHO ki)
        => NA ki (Fix ki codes) at
        -> NA ki (Fix ki codes) at
        -> m (At ki codes at)
 enumAt (NA_I x) (NA_I y) = AtFix <$> enumAlmu x y
 enumAt (NA_K x) (NA_K y) = return $ AtSet (Trivial x y)
 
+enumAl :: (MonadPlus m , TestEquality ki , EqHO ki)
+       => PoA ki (Fix ki codes) p1
+       -> PoA ki (Fix ki codes) p2
+       -> m (Al ki codes p1 p2)
+enumAl Nil Nil = return A0
+enumAl (x :* xs) Nil = ADel x <$> enumAl xs Nil
+enumAl Nil (y :* ys) = AIns y <$> enumAl Nil ys
+enumAl (x :* xs) (y :* ys)
+  =     (ADel x <$> enumAl xs (y :* ys))
+    <|> (AIns y <$> enumAl (x :* xs) ys)
+    <|> case testEquality x y of
+          Just Refl -> AX <$> (enumAt x y) <*> enumAl xs ys
+          Nothing   -> mzero
+
+enumSpn :: (MonadPlus m , TestEquality ki , EqHO ki)
+        => Rep ki (Fix ki codes) sum
+        -> Rep ki (Fix ki codes) sum
+        -> m (Spine ki codes sum)
+enumSpn (sop -> Tag cx px) (sop -> Tag cy py)
+  = case testEquality cx cy of
+      Nothing   -> SChg cx cy <$> enumAl px py
+      Just Refl -> if and $ elimNP (uncurry' (==)) (zipNP px py)
+                   then return Scp
+                   else SCns cx <$> mapNPM (uncurry' enumAt) (zipNP px py)
+                      
 enumDelCtx :: forall m ki codes iy prod
-            . (MonadPlus m , IsNat iy)
+            . (MonadPlus m , TestEquality ki , EqHO ki , IsNat iy)
            => PoA ki (Fix ki codes) prod
            -> Fix ki codes iy
            -> m (DelCtx ki codes iy prod)
@@ -37,7 +65,7 @@ enumDelCtx (NA_I x :* xs) f
     <|> T (NA_I x) <$> enumDelCtx xs f
 
 enumInsCtx :: forall m ki codes iy prod
-            . (MonadPlus m , IsNat iy)
+            . (MonadPlus m , TestEquality ki , EqHO ki , IsNat iy)
            => Fix ki codes iy
            -> PoA ki (Fix ki codes) prod
            -> m (InsCtx ki codes iy prod)
@@ -48,16 +76,16 @@ enumInsCtx f (NA_I x :* xs)
     <|> T (NA_I x) <$> enumInsCtx f xs 
     
 enumAlmu :: forall m ki codes ix iy
-          . (MonadPlus m , IsNat ix , IsNat iy)
+          . (MonadPlus m , TestEquality ki , EqHO ki , IsNat ix , IsNat iy)
          => Fix ki codes ix
          -> Fix ki codes iy
          -> m (Almu ki codes ix iy)
-enumAlmu x y =
-  let d = enumDel (sop $ unFix x) y
-      i = enumIns x (sop $ unFix y)
-   in case testEquality (getFixSNat x) (getFixSNat y) of
-        Nothing   -> d <|> i
-        Just Refl -> (Spn <$> _) <|> d <|> i
+enumAlmu x y
+  =    enumDel (sop $ unFix x) y
+   <|> enumIns x (sop $ unFix y)
+   <|> case testEquality (getFixSNat x) (getFixSNat y) of
+          Nothing   -> mzero
+          Just Refl -> Spn <$> enumSpn (unFix x) (unFix y)
   where
     enumDel :: View ki (Fix ki codes) (Lkup ix codes)
             -> Fix ki codes iy

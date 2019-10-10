@@ -68,9 +68,9 @@ mergeAts (x :* xs) (y :* ys) = (:*) <$> mergeAt x y <*> mergeAts xs ys
 mergeSpine :: EqHO ki
            => SNat ix
            -> SNat iy
-           -> Spine ki codes (Lkup ix codes) (Lkup iy codes)
-           -> Spine ki codes (Lkup ix codes) (Lkup iy codes)
-           -> Maybe (Spine ki codes (Lkup ix codes) (Lkup iy codes))
+           -> Spine ki codes (Lkup ix codes) 
+           -> Spine ki codes (Lkup ix codes) 
+           -> Maybe (Spine ki codes (Lkup ix codes))
 mergeSpine _ _ Scp s = pure s
 mergeSpine _ _ _ Scp = pure Scp
 mergeSpine _ _ (SCns cx xs) (SCns cy ys) = do

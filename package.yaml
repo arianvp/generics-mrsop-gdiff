@@ -16,9 +16,19 @@ github:              VictorCMiraldo/generics-mrsop-gdiff
 
 dependencies:
   - base >= 4.9 && < 5
+  - sop-core
   - generics-mrsop >= 2.2.0
 
 library:
   source-dirs: src/
   ghc-options: -Wall
  
+tests:
+  spec:
+    main: Spec.hs
+    source-dirs:
+      - tests
+    dependencies:
+      - generics-mrsop-gdiff
+      - QuickCheck
+      - hspec

@@ -143,12 +143,13 @@ stiffAlmu :: (TestEquality ki, EqHO ki)
           => Fix ki codes ix -- ^
           -> Fix ki codes iy
           -> Almu ki codes ix iy
-stiffAlmu (Fix rep1) (Fix rep2) = Spn (stiffSpine rep1 rep2)
+stiffAlmu (Fix rep1) (Fix rep2)
+  = error "does it even happen?" -- Spn (stiffSpine rep1 rep2)
 
 stiffSpine :: (TestEquality ki, EqHO ki)
            => Rep ki (Fix ki codes) xs -- ^ 
-           -> Rep ki (Fix ki codes) ys
-           -> Spine ki codes xs ys
+           -> Rep ki (Fix ki codes) xs
+           -> Spine ki codes xs 
 stiffSpine (sop -> Tag c1 p1) (sop -> Tag c2 p2) = SChg c1 c2 (stiffAl p1 p2)
 
 stiffAt :: (TestEquality ki, EqHO ki)
@@ -272,7 +273,10 @@ diffAlmu :: forall ki codes ix iy
          -> Almu ki codes ix iy
 diffAlmu x@(AnnFix ann1 rep1) y@(AnnFix ann2 rep2) =
   case (myGetAnn ann1, myGetAnn ann2) of
-    (Copy, Copy) -> Spn (diffSpine (getSNat $ Proxy @ix) (getSNat $ Proxy @iy) rep1 rep2)
+    (Copy, Copy) ->
+      case testEquality (getSNat $ Proxy @ix) (getSNat $ Proxy @iy) of
+        Just Refl -> Spn (diffSpine rep1 rep2)
+        Nothing   -> error "you sure?"
     (Copy, Modify) -> 
       if hasCopies y then diffIns x rep2 else stiffAlmu (forgetAnn x) (forgetAnn y)
     (Modify, Copy) ->
@@ -291,23 +295,18 @@ diffAlmu x@(AnnFix ann1 rep1) y@(AnnFix ann2 rep2) =
       diffDel rep x1 = case sop rep of Tag c xs -> Del c (diffCtx CtxDel x1 xs)
 
 -- | Takes two annotated 'Rep's, and produces a patch
-diffSpine :: forall ki codes ix iy
-           . (TestEquality ki, EqHO ki, IsNat ix, IsNat iy)
-          => SNat ix -- ^ We need these to identify the mutrec family 
-          -> SNat iy 
-          -> Rep ki (AnnFix ki codes (Const Int :*: Const Ann)) (Lkup ix codes)
-          -> Rep ki (AnnFix ki codes (Const Int :*: Const Ann)) (Lkup iy codes)
-          -> Spine ki codes (Lkup ix codes) (Lkup iy codes)
-diffSpine six siy s1@(sop -> Tag c1 p1) s2@(sop -> Tag c2 p2) =
-  case testEquality six siy of
-    Just Refl ->
-      if ((==) `on` mapRep forgetAnn) s1 s2
-        then Scp
-        else case testEquality c1 c2 of
-                   Just Refl ->
-                     SCns c1 (mapNP (\(a :*: b) -> diffAt a b) (zipNP p1 p2))
-                   Nothing -> SChg c1 c2 (diffAl p1 p2)
-    Nothing -> SChg c1 c2 (diffAl p1 p2)
+diffSpine :: forall ki codes  sum
+           . (TestEquality ki, EqHO ki)
+          => Rep ki (AnnFix ki codes (Const Int :*: Const Ann)) sum
+          -> Rep ki (AnnFix ki codes (Const Int :*: Const Ann)) sum
+          -> Spine ki codes sum 
+diffSpine s1@(sop -> Tag c1 p1) s2@(sop -> Tag c2 p2) =
+  if ((==) `on` mapRep forgetAnn) s1 s2
+  then Scp
+  else case testEquality c1 c2 of
+         Just Refl ->
+           SCns c1 (mapNP (\(a :*: b) -> diffAt a b) (zipNP p1 p2))
+         Nothing -> SChg c1 c2 (diffAl p1 p2)
 
 
 diffAl :: forall ki codes xs ys

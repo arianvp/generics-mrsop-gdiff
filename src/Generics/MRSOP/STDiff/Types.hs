@@ -39,15 +39,15 @@ data Al (ki :: kon -> *) (codes :: [[[Atom kon]]]) :: [Atom kon] -> [Atom kon] -
   AIns :: NA ki (Fix ki codes) x -> Al ki codes xs ys -> Al ki codes xs (x ': ys)
 
 -- |Represents a change at the coproduct structure.
-data Spine (ki :: kon -> *) (codes :: [[[Atom kon]]]) :: [[Atom kon]] -> [[Atom kon]] -> * where
-  Scp  :: Spine ki codes s1 s1
+data Spine (ki :: kon -> *) (codes :: [[[Atom kon]]]) :: [[Atom kon]] -> * where
+  Scp  :: Spine ki codes s1
   SCns :: Constr s1 c1 
        -> NP (At ki codes) (Lkup c1 s1)
-       -> Spine ki codes s1 s1
+       -> Spine ki codes s1
   SChg :: Constr s1 c1
-       -> Constr s2 c2
-       -> Al ki codes (Lkup c1 s1) (Lkup c2 s2)
-       -> Spine ki codes s1 s2
+       -> Constr s1 c2
+       -> Al ki codes (Lkup c1 s1) (Lkup c2 s1)
+       -> Spine ki codes s1 
 
 -- * Fixpoint Changes
 --
@@ -83,7 +83,7 @@ newtype AlmuMin ki codes ix iy = AlmuMin  { unAlmuMin :: Almu ki codes iy ix }
 
 -- |Represent recursive spines.
 data Almu (ki :: kon -> *) (codes :: [[[Atom kon]]]) :: Nat -> Nat -> * where
-  Spn :: Spine ki codes (Lkup ix codes) (Lkup iy codes) -> Almu ki codes ix iy
+  Spn :: Spine ki codes (Lkup ix codes) -> Almu ki codes ix ix
   Ins :: Constr (Lkup iy codes) c
       -> InsCtx ki codes ix (Lkup c (Lkup iy codes)) -- its an ix with an iy typed-hoed
       -> Almu ki codes ix iy
