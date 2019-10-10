@@ -1,4 +1,4 @@
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE TypeOperators         #-}
 {-# LANGUAGE DataKinds             #-}
 {-# LANGUAGE QuantifiedConstraints #-}
 {-# LANGUAGE PolyKinds             #-}
