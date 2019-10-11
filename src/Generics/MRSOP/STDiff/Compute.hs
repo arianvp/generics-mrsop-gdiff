@@ -301,7 +301,7 @@ diffSpine :: forall ki codes ix iy
 diffSpine six siy s1@(sop -> Tag c1 p1) s2@(sop -> Tag c2 p2) =
   case testEquality six siy of
     Just Refl ->
-      if ((==) `on` mapRep forgetAnn) s1 s2
+      if (eqHO `on` mapRep forgetAnn) s1 s2
         then Scp
         else case testEquality c1 c2 of
                    Just Refl ->

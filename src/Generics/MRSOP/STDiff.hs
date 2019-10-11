@@ -25,8 +25,8 @@ applyAt :: EqHO ki
         => (At ki codes :*: NA ki (Fix ki codes)) a
         -> Either String (NA ki (Fix ki codes) a)
 applyAt (AtSet (Trivial a' b) :*: NA_K a)  
-  | (==) a' b  = pure (NA_K a)
-  | (==) a' a  = pure (NA_K b)
+  | eqHO a' b  = pure (NA_K a)
+  | eqHO a' a  = pure (NA_K b)
   | otherwise = Left "atom"
 applyAt (AtFix x :*: NA_I x') = NA_I <$> applyAlmu x x'
 
@@ -41,7 +41,7 @@ applyAl (AX dx dxs) (x :* xs) =
 applyAl (AIns x dxs) xs =
   (x :*) <$> applyAl dxs xs 
 applyAl (ADel x dxs) (x' :* xs) =
-  if x == x' then applyAl dxs xs else Left "al del"
+  if eqHO x x' then applyAl dxs xs else Left "al del"
   -- applyAl dxs xs
 
 testEquality' :: (TestEquality f)

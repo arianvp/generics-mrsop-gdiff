@@ -55,7 +55,7 @@ enumSpn six siy (sop -> Tag cx px) (sop -> Tag cy py)
       Just Refl -> 
         case testEquality cx cy of
            Nothing   -> SChg cx cy <$> enumAl px py
-           Just Refl -> if and $ elimNP (uncurry' (==)) (zipNP px py)
+           Just Refl -> if eqHO px py
                         then return Scp
                         else SCns cx <$> mapNPM (uncurry' enumAt) (zipNP px py)
 

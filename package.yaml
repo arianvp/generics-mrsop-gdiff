@@ -16,7 +16,7 @@ github:              VictorCMiraldo/generics-mrsop-gdiff
 
 dependencies:
   - base >= 4.9 && < 5
-  - generics-mrsop >= 2.2.0
+  - generics-mrsop >= 2.3.0
 
 library:
   source-dirs: src/

@@ -19,9 +19,9 @@ mergeAt :: EqHO ki
         -> At ki codes a
         -> Maybe (At ki codes a)
 mergeAt  (AtSet (Trivial k1 k2)) (AtSet (Trivial k3 k4)) = 
-   if k1 == k2
+   if eqHO k1 k2
    then pure $ AtSet $ Trivial k3 k4
-   else if k3 == k4
+   else if eqHO k3 k4
    then pure $ AtSet $ Trivial k3 k4
    else Nothing
 mergeAt (AtFix x) (AtFix y) = AtFix <$> mergeAlmu x y
@@ -39,7 +39,7 @@ mergeAtAl (x :* xs) (AX at al) = AX <$> (mergeAt x at)  <*> mergeAtAl xs al
 
 identityAt :: (EqHO ki) => At ki codes a -> Bool
 identityAt (AtFix (Spn Scp)) = True
-identityAt (AtSet (Trivial k1 k2)) = k1 == k2
+identityAt (AtSet (Trivial k1 k2)) = eqHO k1 k2
 identityAt _ = False
 
 makeIdAt :: NA ki (Fix ki codes) a -> At ki codes a
