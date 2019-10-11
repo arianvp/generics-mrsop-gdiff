@@ -1,9 +1,9 @@
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE GADTs #-}
+{-# LANGUAGE TypeOperators   #-}
+{-# LANGUAGE TypeFamilies    #-}
+{-# LANGUAGE DataKinds       #-}
+{-# LANGUAGE GADTs           #-}
 {-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE PolyKinds #-}
+{-# LANGUAGE PolyKinds       #-}
 
 -- | For the lack of a better name, here we put random stuff
 module Generics.MRSOP.GDiff.Util where

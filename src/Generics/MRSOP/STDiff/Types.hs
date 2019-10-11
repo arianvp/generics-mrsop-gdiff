@@ -1,6 +1,5 @@
 {-# LANGUAGE TypeOperators         #-}
 {-# LANGUAGE DataKinds             #-}
-{-# LANGUAGE QuantifiedConstraints #-}
 {-# LANGUAGE PolyKinds             #-}
 {-# LANGUAGE GADTs                 #-}
 module Generics.MRSOP.STDiff.Types where

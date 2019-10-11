@@ -1,5 +1,4 @@
 {-# LANGUAGE ViewPatterns          #-}
-{-# LANGUAGE QuantifiedConstraints #-}
 {-# LANGUAGE PolyKinds             #-}
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE DataKinds             #-}
