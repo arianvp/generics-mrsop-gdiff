@@ -75,7 +75,7 @@ enumInsCtx :: forall m ki codes iy prod
            => Fix ki codes iy
            -> PoA ki (Fix ki codes) prod
            -> m (InsCtx ki codes iy prod)
-enumInsCtx f Nil            = mzero
+enumInsCtx _ Nil            = mzero
 enumInsCtx f (NA_K x :* xs) = T (NA_K x) <$> enumInsCtx f xs
 enumInsCtx f (NA_I x :* xs) 
   = (flip H xs) <$> enumAlmu f x
@@ -89,14 +89,14 @@ enumAlmu :: forall m ki codes ix iy
 enumAlmu x y
   =    enumDel (sop $ unFix x) y
    <|> enumIns x (sop $ unFix y)
-   <|> Spn <$> enumSpn (getFixSNat x) (getFixSNat y) (unFix x) (unFix y)
+   <|> Spn <$> enumSpn (snatFixIdx x) (snatFixIdx y) (unFix x) (unFix y)
   where
     enumDel :: View ki (Fix ki codes) (Lkup ix codes)
             -> Fix ki codes iy
             -> m (Almu ki codes ix iy)
-    enumDel (Tag c p) y = Del c <$> enumDelCtx p y
+    enumDel (Tag c p) y0 = Del c <$> enumDelCtx p y0
 
     enumIns :: Fix ki codes ix
             -> View ki (Fix ki codes) (Lkup iy codes)
             -> m (Almu ki codes ix iy)
-    enumIns x (Tag c p) = Ins c <$> enumInsCtx x p
+    enumIns x0 (Tag c p) = Ins c <$> enumInsCtx x0 p
