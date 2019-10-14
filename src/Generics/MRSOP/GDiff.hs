@@ -1,4 +1,3 @@
-{-# LANGUAGE QuantifiedConstraints #-}
 {-# LANGUAGE PolyKinds            #-}
 {-# LANGUAGE FlexibleContexts     #-}
 {-# LANGUAGE DataKinds            #-}
@@ -17,7 +16,7 @@
 --
 module Generics.MRSOP.GDiff
   ( Cof(..)
-  , cofIdx , cofWitnessI , cofHeq
+  , cofIdx , cofWitnessI , cofHeq , matchCof
   , ES(..)
   , apply, apply' , applyES
   , diff , diff'
@@ -71,7 +70,7 @@ cofHeq cx@(ConstrI x _) cy@(ConstrI y _) =
 cofHeq (ConstrK x) (ConstrK y) =
   case testEquality x y of
     Just Refl ->
-      if x == y
+      if eqHO x y
         then Just (Refl, Refl)
         else Nothing
     Nothing -> Nothing
@@ -255,7 +254,7 @@ matchCof :: (EqHO ki)
          -> NA ki (Fix ki codes) a
          -> Maybe (PoA ki (Fix ki codes) t)
 matchCof (ConstrI c1 _) (NA_I (Fix x)) = match c1 x
-matchCof (ConstrK k) (NA_K k2) = guard (k == k2) >> Just Nil
+matchCof (ConstrK k) (NA_K k2) = guard (eqHO k k2) >> Just Nil
 
 -- we need to give Haskell a bit of a hint that Tyof codes c reduces to an IsList
 -- insCof is also really the only place where we _need_ IsList I think
@@ -328,7 +327,7 @@ applyES (Cpy _ c es) xs = insCof c <$> (delCof c xs >>= applyES es)
 -- hence, we can not get the datatype info
 showCof :: forall ki fam codes a c.
      (HasDatatypeInfo ki fam codes, ShowHO ki) => Cof ki codes a c -> String
-showCof (ConstrK k) = show k
+showCof (ConstrK k) = showHO k
 showCof x@(ConstrI c _) = constructorName . constrInfoLkup c $ datatypeInfo (Proxy @fam) (cofIdx x)
 
 instance (HasDatatypeInfo ki fam codes, ShowHO ki) =>
