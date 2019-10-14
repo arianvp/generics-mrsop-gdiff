@@ -5,6 +5,4 @@ packages:
 - .
 
 extra-deps:
-  - git: git@github.com:VictorCMiraldo/generics-mrsop.git
-    commit: 293bbd43b07f6562ca72725218bb1bd8d7406767
-    # - generics-mrsop-2.3.0
+ - generics-mrsop-2.3.0

@@ -4,23 +4,14 @@
 {-# LANGUAGE PolyKinds             #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE GADTs                 #-}
-module Generics.MRSOP.STDiff.Enum where
+module Generics.MRSOP.STDiff.Enum (enumAlmu) where
 
 import Control.Monad
 import Control.Applicative
-import Data.Proxy
 import Data.Type.Equality
 
 import Generics.MRSOP.Base
 import Generics.MRSOP.STDiff.Types
-
--- VCM: pottentially duplicate function
-getFixSNat :: IsNat ix => Fix ki codes ix -> SNat ix
-getFixSNat _ = getSNat (Proxy :: Proxy ix)
-
-
-
-
 
 enumAt :: (MonadPlus m , TestEquality ki , EqHO ki)
        => NA ki (Fix ki codes) at
@@ -80,6 +71,8 @@ enumInsCtx f (NA_I x :* xs)
   = (flip H xs) <$> enumAlmu f x
     <|> T (NA_I x) <$> enumInsCtx f xs 
     
+-- |Enumerates all possible patches that transform a value into another
+-- on a @MonadPlus@ instance; /WARNING: this function has impractical runtime performance and should not be used!!/
 enumAlmu :: forall m ki codes ix iy
           . (MonadPlus m , TestEquality ki , EqHO ki , IsNat ix , IsNat iy)
          => Fix ki codes ix
